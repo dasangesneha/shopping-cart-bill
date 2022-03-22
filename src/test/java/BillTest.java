@@ -5,56 +5,101 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BillTest {
     private Bill bill;
+    private Inventory inventory;
 
     @BeforeEach
     public void setUp() {
-        bill = new Bill();
+        inventory = new Inventory();
+
+        Item apple = new Item(110011, "Apple", 1.1);
+        Item banana = new Item(110022, "Banana", 1.3);
+        Item carrot = new Item(110033, "Carrot", 0.9);
+
+        inventory.addItemToInventory(apple);
+        inventory.addItemToInventory(banana);
+        inventory.addItemToInventory(carrot);
+
+        bill = new Bill(inventory);
     }
 
     @Test
     public void whenAddItemToBillThenItemGetsAdded() {
-        bill.addItemToBillByBarcode(110011);
+        int expectedBarcode = 110011;
 
-        assertEquals(1, bill.getTotalItemsCountThatAddedToBill());
+        bill.addItemToBillByBarcode(expectedBarcode);
+
+        assertEquals(1, bill.getTotalItemCountThatAddedToBill(expectedBarcode));
     }
 
     @Test
-    public void whenAddingSameItemTwiceThenItIsGettingAddedToBill() {
-        bill.addItemToBillByBarcode(110011);
+    public void givenBillContainsAppleWhenAddingAppleTwiceThenItIsGettingAddedToBill() {
+        int barcodeForApple = 110011;
+        bill.addItemToBillByBarcode(barcodeForApple);
 
-        bill.addItemToBillByBarcode(110011);
+        bill.addItemToBillByBarcode(barcodeForApple);
 
-        assertEquals(2, bill.getTotalItemsCountThatAddedToBill());
+        assertEquals(2, bill.getTotalItemCountThatAddedToBill(barcodeForApple));
     }
 
     @Test
-    public void whenAddingDifferentItemToBillThenItIsGettingAddedToBill() {
-        bill.addItemToBillByBarcode(110011);
+    public void givenBillContainsAppleWhenAddingBananaThenItIsGettingAddedToBill() {
+        int barcodeForApple = 110011;
+        int barcodeForBanana = 110012;
 
-        bill.addItemToBillByBarcode(110012);
+        bill.addItemToBillByBarcode(barcodeForApple);
+        bill.addItemToBillByBarcode(barcodeForBanana);
 
-        assertEquals(2, bill.getTotalItemsCountThatAddedToBill());
+        assertEquals(1, bill.getTotalItemCountThatAddedToBill(barcodeForApple));
+        assertEquals(1, bill.getTotalItemCountThatAddedToBill(barcodeForBanana));
     }
 
     @Test
     public void whenRemoveItemFromBillThenItemGetsRemoved() {
-        bill.addItemToBillByBarcode(110011);
-        bill.addItemToBillByBarcode(110012);
+        int barcodeForApple = 110011;
+        bill.addItemToBillByBarcode(barcodeForApple);
 
-        bill.deleteItemByBarcode(110011);
+        bill.deleteItemByBarcode(barcodeForApple);
 
-        assertEquals(1, bill.getTotalItemsCountThatAddedToBill());
+        assertEquals(0, bill.getTotalItemCountThatAddedToBill(barcodeForApple));
     }
 
     @Test
-    public void givenTwoItemsOfSameTypeAvailableWhenRemoveOneItemFromBillThenItemGetsRemoved() {
-        bill.addItemToBillByBarcode(110011);
-        bill.addItemToBillByBarcode(110011);
-        bill.addItemToBillByBarcode(110012);
+    public void givenBillContainsTwoApplesAndOneBananaWhenRemovedOneAppleThenItGetsRemovedAndOthersAreNotRemoved() {
+        int barcodeForApple = 110011;
+        int barcodeForBanana = 110012;
+        bill.addItemToBillByBarcode(barcodeForApple);
+        bill.addItemToBillByBarcode(barcodeForApple);
+        bill.addItemToBillByBarcode(barcodeForBanana);
 
-        bill.deleteItemByBarcode(110011);
+        bill.deleteItemByBarcode(barcodeForApple);
 
-        assertEquals(2, bill.getTotalItemsCountThatAddedToBill());
+        assertEquals(1, bill.getTotalItemCountThatAddedToBill(barcodeForApple));
+        assertEquals(1, bill.getTotalItemCountThatAddedToBill(barcodeForBanana));
+    }
+
+    @Test
+    public void givenAnItemIsAddedToBillWhenGetLineItemDetailsThenPrintTheBillLine() {
+        int barcodeForApple = 110011;
+        String expectedResult = "1 x Apple @1.1 = 1.1\n";
+        bill.addItemToBillByBarcode(barcodeForApple);
+
+        String actualResult = bill.getLineItemBillDetails(barcodeForApple);
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void givenMultipleLineItemsAreAddedToBillWhenCalculateTotalBillThenPrintTheTotalBill() {
+        String expectedResult = "2 x Apple @1.1 = 2.2\n1 x Banana @1.3 = 1.3\nTotal = 3.5";
+        int barcodeForApple = 110011;
+        int barcodeForBanana = 110022;
+        bill.addItemToBillByBarcode(barcodeForApple);
+        bill.addItemToBillByBarcode(barcodeForApple);
+        bill.addItemToBillByBarcode(barcodeForBanana);
+
+        String actualResult = bill.getTotalBillAmount();
+
+        assertEquals(expectedResult, actualResult);
     }
 
 }
