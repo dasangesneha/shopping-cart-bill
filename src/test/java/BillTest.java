@@ -2,6 +2,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class BillTest {
     private Bill bill;
@@ -11,9 +12,9 @@ public class BillTest {
     public void setUp() {
         inventory = new Inventory();
 
-        Item apple = new Item(110011, "Apple", 1.1);
-        Item banana = new Item(110022, "Banana", 1.3);
-        Item carrot = new Item(110033, "Carrot", 0.9);
+        Item apple = new Item("110011", "Apple", 1.1);
+        Item banana = new Item("110022", "Banana", 1.3);
+        Item carrot = new Item("110033", "Carrot", 0.9);
 
         inventory.addItemToInventory(apple);
         inventory.addItemToInventory(banana);
@@ -24,7 +25,7 @@ public class BillTest {
 
     @Test
     public void whenAddItemToBillThenItemGetsAdded() {
-        int expectedBarcode = 110011;
+        String expectedBarcode = "110011";
 
         bill.addItemToBillByBarcode(expectedBarcode);
 
@@ -32,8 +33,8 @@ public class BillTest {
     }
 
     @Test
-    public void givenBillContainsAppleWhenAddingAppleTwiceThenItIsGettingAddedToBill() {
-        int barcodeForApple = 110011;
+    public void whenAddingAppleTwiceThenItIsGettingAddedToBill() {
+        String barcodeForApple = "110011";
         bill.addItemToBillByBarcode(barcodeForApple);
 
         bill.addItemToBillByBarcode(barcodeForApple);
@@ -43,8 +44,8 @@ public class BillTest {
 
     @Test
     public void givenBillContainsAppleWhenAddingBananaThenItIsGettingAddedToBill() {
-        int barcodeForApple = 110011;
-        int barcodeForBanana = 110012;
+        String barcodeForApple = "110011";
+        String barcodeForBanana = "110012";
 
         bill.addItemToBillByBarcode(barcodeForApple);
         bill.addItemToBillByBarcode(barcodeForBanana);
@@ -55,7 +56,7 @@ public class BillTest {
 
     @Test
     public void whenRemoveItemFromBillThenItemGetsRemoved() {
-        int barcodeForApple = 110011;
+        String barcodeForApple = "110011";
         bill.addItemToBillByBarcode(barcodeForApple);
 
         bill.deleteItemByBarcode(barcodeForApple);
@@ -64,9 +65,9 @@ public class BillTest {
     }
 
     @Test
-    public void givenBillContainsTwoApplesAndOneBananaWhenRemovedOneAppleThenItGetsRemovedAndOthersAreNotRemoved() {
-        int barcodeForApple = 110011;
-        int barcodeForBanana = 110012;
+    public void whenRemovedOneAppleThenItGetsRemovedAndOthersAreNotRemoved() {
+        String barcodeForApple = "110011";
+        String barcodeForBanana = "110012";
         bill.addItemToBillByBarcode(barcodeForApple);
         bill.addItemToBillByBarcode(barcodeForApple);
         bill.addItemToBillByBarcode(barcodeForBanana);
@@ -78,8 +79,8 @@ public class BillTest {
     }
 
     @Test
-    public void givenAnItemIsAddedToBillWhenGetLineItemDetailsThenPrintTheBillLine() {
-        int barcodeForApple = 110011;
+    public void whenGetLineItemDetailsThenPrintTheBillLine() {
+        String barcodeForApple = "110011";
         String expectedResult = "1 x Apple @1.1 = 1.1\n";
         bill.addItemToBillByBarcode(barcodeForApple);
 
@@ -89,10 +90,19 @@ public class BillTest {
     }
 
     @Test
-    public void givenMultipleLineItemsAreAddedToBillWhenCalculateTotalBillThenPrintTheTotalBill() {
+    public void givenBarcodeNotExistsWhenGetLineItemDetailsThenDoNOtReturnAnything() {
+        bill.addItemToBillByBarcode("110011");
+
+        String actualResult = bill.getLineItemBillDetails("110012");
+
+        assertEquals("", actualResult);
+    }
+
+    @Test
+    public void whenCalculateTotalBillThenPrintTheTotalBill() {
         String expectedResult = "2 x Apple @1.1 = 2.2\n1 x Banana @1.3 = 1.3\nTotal = 3.5";
-        int barcodeForApple = 110011;
-        int barcodeForBanana = 110022;
+        String barcodeForApple = "110011";
+        String barcodeForBanana = "110022";
         bill.addItemToBillByBarcode(barcodeForApple);
         bill.addItemToBillByBarcode(barcodeForApple);
         bill.addItemToBillByBarcode(barcodeForBanana);
